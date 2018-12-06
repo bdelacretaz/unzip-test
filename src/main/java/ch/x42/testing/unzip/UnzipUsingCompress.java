@@ -1,11 +1,10 @@
 package ch.x42.testing.unzip;
 
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 
 public class UnzipUsingCompress {
     public static void main(String[] args) throws Exception {
@@ -22,13 +21,18 @@ public class UnzipUsingCompress {
         System.err.println("Input file: :" + inputFile.getName());
         System.err.println("Output folder: :" + outputFolder.getName());
 
+        // TODO not sure about these parameters
+        final String zipEncoding = "UTF-8";
+        final boolean useUnicodeExtraFields = true;
+        final boolean allowStoredEntriesWithDataDescriptor = true;
+
         try (
             InputStream is = new FileInputStream(inputFile);
-            ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
+            ZipArchiveInputStream zis = new ZipArchiveInputStream(is, zipEncoding, useUnicodeExtraFields, allowStoredEntriesWithDataDescriptor);
         ) {
             ZipArchiveEntry entry = null;
 
-            while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
+            while ((entry = (ZipArchiveEntry) zis.getNextEntry()) != null) {
                 File outFile = new File(outputFolder + File.separator + entry.getName());
                 if(outFile.isDirectory()) {
                     if(!outFile.exists()) {
@@ -38,7 +42,7 @@ public class UnzipUsingCompress {
                     System.err.println("File exists, won't overwrite it: " + entry.getName());
                 } else {
                     System.err.println("Extracting: " + entry.getName());
-                    FileUtils.copyInputStreamToFile(ais, outFile);
+                    FileUtils.copyInputStreamToFile(zis, outFile);
                 }
             }
         }

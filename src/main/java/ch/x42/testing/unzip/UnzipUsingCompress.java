@@ -34,7 +34,7 @@ public class UnzipUsingCompress {
 
             while ((entry = (ZipArchiveEntry) zis.getNextEntry()) != null) {
                 File outFile = new File(outputFolder + File.separator + entry.getName());
-                if(outFile.isDirectory()) {
+                if(entry.isDirectory()) {
                     if(!outFile.exists()) {
                         outFile.mkdirs();
                     }
